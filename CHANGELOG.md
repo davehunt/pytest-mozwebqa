@@ -3,6 +3,7 @@ Change Log
 
 2.0
 ---
+* Gather WebDriver logs if test is marked public
 * Remove credentials support in favour of pytest-variables
 * Add support for BrowserStack
 * Use pytest-html for HTML reports

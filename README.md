@@ -145,14 +145,29 @@ If you're using Google Chrome it's possible to install extensions when starting 
 
     --extension='/path/to/ext1/ext1.crx' --extension='/path/to/ext2/ext2.crx'
 
-HTML report
------------
+## HTML report
 
 If the pytest-html plugin is installed then the HTML reports will include
 additional information such as the failing URL, screenshot, and page source.
 For Sauce Labs, a link to the job and inline video will also be included. Check
 the [pytest-html documentation](https://pypi.python.org/pypi/pytest-html) for
 how to install the plugin and generate HTML reports.
+
+### Privacy
+
+The logs gathered for the HTML report may contain sensitive information such as
+passwords, so these are disabled by default. You can override this by marking
+tests as public:
+
+```python
+import pytest
+@pytest.mark.privacy('public')
+def test_public(self, mozwebqa):
+    home_pg = home_page.HomePage(mozwebqa)
+```
+
+Note that the privacy mark is also used by Sauce Labs. See
+[here](#sauce-labs-integration) for further information.
 
 ## Appium
 

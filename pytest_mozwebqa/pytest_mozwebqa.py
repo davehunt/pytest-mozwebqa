@@ -4,6 +4,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+from datetime import datetime
 import os
 import re
 import ConfigParser
@@ -146,10 +147,10 @@ def pytest_runtest_makereport(__multicall__, item, call):
     report = __multicall__.execute()
     extra = getattr(report, 'extra', [])
     try:
-        report.public = item.keywords['privacy'].args[0] == 'public'
+        public = item.keywords['privacy'].args[0] == 'public'
     except (IndexError, KeyError):
         # privacy mark is not present or has no value
-        report.public = False
+        public = False
     if report.when == 'call':
         report.session_id = getattr(item, 'session_id', None)
         if hasattr(TestSetup, 'selenium') and TestSetup.selenium and 'skip_selenium' not in item.keywords:
@@ -166,6 +167,15 @@ def pytest_runtest_makereport(__multicall__, item, call):
                 html = TestSetup.selenium.page_source.encode('utf-8')
                 if html is not None and pytest_html is not None:
                     extra.append(pytest_html.extras.text(html, 'HTML'))
+                if public:
+                    # logs could contain sensitive information so we only
+                    # include them in the HTML report if the test is marked
+                    # as public
+                    for log_type in TestSetup.selenium.log_types:
+                        log = TestSetup.selenium.get_log(log_type)
+                        if log and pytest_html is not None:
+                            extra.append(pytest_html.extras.text(
+                                format_log(log), '%s Log' % log_type.title()))
             if TestSetup.selenium_client.cloud is not None and report.session_id:
                 cloud = TestSetup.selenium_client.cloud
                 extra_summary.append('%s Job: %s' % (cloud.name, cloud.url(report.session_id)))
@@ -317,6 +327,14 @@ def pytest_addoption(parser):
                      dest='run_destructive',
                      default=False,
                      help='include destructive tests (tests not explicitly marked as \'nondestructive\'). (default: %default)')
+
+
+def format_log(log):
+    timestamp_format = '%Y-%m-%d %H:%M:%S.%f'
+    entries = ['{0} {1[level]} - {1[message]}'.format(
+        datetime.utcfromtimestamp(entry['timestamp'] / 1000.0).strftime(
+            timestamp_format), entry).rstrip() for entry in log]
+    return '\n'.join(entries)
 
 
 def split_class_and_test_names(nodeid):
