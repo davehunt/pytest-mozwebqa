@@ -41,8 +41,8 @@ def make_driver(item):
 
 def start_driver(item, options, capabilities):
     specific_driver = '%s_driver' % options.driver.lower()
-    make_driver = globals().get(specific_driver, generic_driver)
-    driver = make_driver(item, options, capabilities)
+    driver_method = globals().get(specific_driver, generic_driver)
+    driver = driver_method(item, options, capabilities)
     if options.event_listener is not None:
         mod_name, class_name = options.event_listener.rsplit('.', 1)
         mod = __import__(mod_name, fromlist=[class_name])

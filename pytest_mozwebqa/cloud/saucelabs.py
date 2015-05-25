@@ -26,22 +26,22 @@ def _get_config(option):
 def _credentials():
     username = os.getenv('SAUCELABS_USERNAME', _get_config('username'))
     api_key = os.getenv('SAUCELABS_API_KEY', _get_config('api-key'))
-    if username is None:
+    if not username:
         raise pytest.UsageError('Sauce Labs username must be set')
-    if api_key is None:
+    if not api_key:
         raise pytest.UsageError('Sauce Labs API key must be set')
     return username, api_key
 
 
 def _tags():
     tags = _get_config('tags')
-    if tags is not None:
+    if tags:
         return tags.split(',')
-    else:
-        return []
+    return []
 
 
 def _split_class_and_test_names(nodeid):
+    # TODO remove duplication of shared code
     names = nodeid.split("::")
     names[0] = names[0].replace("/", '.')
     names = [x.replace(".py", "") for x in names if x != "()"]

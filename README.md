@@ -48,7 +48,7 @@ command line option, however it can be more convenient to create a
 baseurl: 'http://www.example.com'
 ```
 
-Alternatively, you can reimplement the `base_url` py.text fixture. This allows
+Alternatively, you can reimplement the `base_url` py.test fixture. This allows
 the value of the base URL to be controlled by your tests. A common use for
 this is when you want to run tests against a local copy of your application
 that's started by your test framework:
